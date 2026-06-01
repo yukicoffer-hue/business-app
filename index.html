@@ -269,7 +269,12 @@
     <div class="nav-item" id="nav-receipts" onclick="showView('receipts')">🧾 領収書管理</div>
     <div class="nav-section">税務</div>
     <div class="nav-item" id="nav-tax" onclick="showView('tax')">📑 確定申告書類</div>
-    <div style="margin-top:auto;padding:16px">
+    <div style="padding:16px;display:flex;flex-direction:column;gap:8px;margin-top:auto">
+      <button class="btn btn-secondary" onclick="exportData()" style="width:100%;font-size:12px">📤 データをバックアップ</button>
+      <label style="width:100%">
+        <input type="file" accept=".json" onchange="importData(this)" style="display:none">
+        <span class="btn btn-secondary" style="width:100%;font-size:12px;cursor:pointer;display:flex;justify-content:center">📥 データを復元・移行</span>
+      </label>
       <button class="btn btn-secondary" onclick="openSettings()" style="width:100%;font-size:12px">⚙️ APIキー設定（OCR用）</button>
     </div>
   </aside>
@@ -892,6 +897,54 @@ function toggleSidebar(){
 function closeSidebar(){
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('active');
+}
+
+// ===== データ移行・バックアップ =====
+function exportData(){
+  var data={
+    invoices: loadInv(),
+    receipts: loadRec(),
+    sales: loadSales(),
+    exportDate: new Date().toISOString(),
+    version: '1.0'
+  };
+  var json=JSON.stringify(data,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='business-app-backup-'+today()+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(input){
+  var file=input.files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      var counts={inv:0,rec:0,sal:0};
+      if(data.invoices&&Array.isArray(data.invoices)){
+        saveInv(data.invoices); counts.inv=data.invoices.length;
+      }
+      if(data.receipts&&Array.isArray(data.receipts)){
+        saveRec(data.receipts); counts.rec=data.receipts.length;
+      }
+      if(data.sales&&Array.isArray(data.sales)){
+        saveSales(data.sales); counts.sal=data.sales.length;
+      }
+      alert('✅ 移行完了！\n請求書：'+counts.inv+'件\n領収書：'+counts.rec+'件\n売上：'+counts.sal+'件\nを復元しました。');
+      input.value='';
+      renderDashboard();
+    }catch(err){
+      alert('❌ ファイルの読み込みに失敗しました。\n正しいバックアップファイルか確認してください。');
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ===== SETTINGS =====
