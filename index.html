@@ -246,6 +246,7 @@
 <div id="mobile-header">
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
   <h1>📊 ビジネス管理</h1>
+  <span id="sync-status-mobile" style="font-size:11px;color:#64748B"></span>
   <button class="btn btn-primary" onclick="showView('create')" style="padding:6px 12px;font-size:12px">✚ 請求書</button>
 </div>
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>
@@ -269,7 +270,10 @@
     <div class="nav-item" id="nav-receipts" onclick="showView('receipts')">🧾 領収書管理</div>
     <div class="nav-section">税務</div>
     <div class="nav-item" id="nav-tax" onclick="showView('tax')">📑 確定申告書類</div>
-    <div style="padding:16px;display:flex;flex-direction:column;gap:8px;margin-top:auto">
+    <div style="padding:12px 16px;border-top:1px solid #1E293B">
+      <div id="sync-status" style="font-size:11px;text-align:center;color:#64748B;margin-bottom:8px">同期未設定</div>
+    </div>
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:8px">
       <button class="btn btn-secondary" onclick="exportData()" style="width:100%;font-size:12px">📤 データをバックアップ</button>
       <label style="width:100%">
         <input type="file" accept=".json" onchange="importData(this)" style="display:none">
@@ -284,11 +288,17 @@
     <div class="modal">
       <h2>⚙️ 設定</h2>
       <div class="form-group">
+        <label>GitHub 同期トークン <span style="font-size:10px;background:#D1FAE5;color:#065F46;padding:2px 6px;border-radius:10px;margin-left:4px">自動同期に必要</span></label>
+        <input type="password" id="gh-token-input" placeholder="ghp_...">
+        <div style="font-size:11px;color:#94A3B8;margin-top:4px">入力するとスマホ・PCで自動同期されます。</div>
+      </div>
+      <div class="form-group">
         <label>Claude APIキー（領収書OCR用）</label>
         <input type="password" id="api-key-input" placeholder="sk-ant-...">
         <div style="font-size:11px;color:#94A3B8;margin-top:4px">Anthropic Consoleから取得。ブラウザ内のみに保存されます。</div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-secondary" onclick="syncLoad()" style="width:100%;margin-bottom:12px">🔄 今すぐ同期する</button>
+      <div style="display:flex;gap:10px">
         <button class="btn btn-secondary" onclick="closeSettings()">キャンセル</button>
         <button class="btn btn-primary" onclick="saveSettings()" style="flex:1">保存する</button>
       </div>
@@ -650,6 +660,7 @@ function submitInvoice(){
     items:items,subtotal:sub,tax:tax,total:sub+tax,
     note:document.getElementById('f-note').value.trim(),status:'未入金',createdAt:new Date().toISOString()};
   var l=loadInv(); l.push(inv); saveInv(l);
+  triggerSave();
   viewDetail(inv.id);
 }
 
@@ -664,10 +675,10 @@ function viewDetail(id){
   document.getElementById('detail-content').innerHTML=buildPreview(inv);
   var bp=document.getElementById('btn-paid');
   if(inv.status==='入金済み'){bp.style.display='none';}
-  else{bp.style.display='';bp.onclick=function(){var l=loadInv(),t=l.find(function(i){return i.id===id;});if(t){t.status='入金済み';saveInv(l);viewDetail(id);}};}
+  else{bp.style.display='';bp.onclick=function(){var l=loadInv(),t=l.find(function(i){return i.id===id;});if(t){t.status='入金済み';saveInv(l);triggerSave();viewDetail(id);}};}
   document.getElementById('btn-delete').onclick=function(){
     if(!confirm('削除しますか？'))return;
-    saveInv(loadInv().filter(function(i){return i.id!==id;}));showView('inv-list');
+    saveInv(loadInv().filter(function(i){return i.id!==id;}));triggerSave();showView('inv-list');
   };
 }
 function buildPreview(inv){
@@ -713,7 +724,7 @@ function addSale(){
     description:document.getElementById('s-desc').value.trim(),
     type:document.getElementById('s-type').value,
     createdAt:new Date().toISOString()};
-  var l=loadSales(); l.push(sale); saveSales(l);
+  var l=loadSales(); l.push(sale); saveSales(l); triggerSave();
   document.getElementById('s-amount').value='';
   document.getElementById('s-client').value='';
   document.getElementById('s-desc').value='';
@@ -742,6 +753,7 @@ function renderSales(){
 function deleteSale(id){
   if(!confirm('この売上データを削除しますか？'))return;
   saveSales(loadSales().filter(function(s){return s.id!==id;}));
+  triggerSave();
   renderSales();
 }
 
@@ -765,7 +777,7 @@ function addReceipt(){
   var rec={id:nextRecNo(),date:document.getElementById('r-date').value,category:cat,amount:amt,
     description:document.getElementById('r-desc').value.trim(),
     paymentMethod:document.getElementById('r-pay').value,createdAt:new Date().toISOString()};
-  var l=loadRec(); l.push(rec); saveRec(l);
+  var l=loadRec(); l.push(rec); saveRec(l); triggerSave();
   document.getElementById('r-cat').value='';
   document.getElementById('r-amount').value='';
   document.getElementById('r-desc').value='';
@@ -806,6 +818,7 @@ function renderReceipts(){
 function deleteReceipt(id){
   if(!confirm('この領収書を削除しますか？'))return;
   saveRec(loadRec().filter(function(r){return r.id!==id;}));
+  triggerSave();
   renderReceipts();
 }
 
@@ -939,6 +952,7 @@ function importData(input){
       }
       alert('✅ 移行完了！\n請求書：'+counts.inv+'件\n領収書：'+counts.rec+'件\n売上：'+counts.sal+'件\nを復元しました。');
       input.value='';
+      triggerSave();
       renderDashboard();
     }catch(err){
       alert('❌ ファイルの読み込みに失敗しました。\n正しいバックアップファイルか確認してください。');
@@ -947,11 +961,87 @@ function importData(input){
   reader.readAsText(file);
 }
 
+// ===== GITHUB 自動同期 =====
+var REPO = 'yukicoffer-hue/business-app';
+var DATA_FILE = 'data.json';
+var syncTimer = null;
+
+function getGHToken(){ return localStorage.getItem('github_token')||''; }
+
+function setSyncStatus(s){
+  var msg = {loading:'🔄 読み込み中...', saving:'☁️ 保存中...', ok:'✅ 同期済み', error:'❌ 同期エラー', none:'同期未設定'};
+  var col = {ok:'#10B981', error:'#EF4444', loading:'#94A3B8', saving:'#3B82F6', none:'#64748B'};
+  var el=document.getElementById('sync-status');
+  var el2=document.getElementById('sync-status-mobile');
+  if(el){ el.textContent=msg[s]||s; el.style.color=col[s]||'#94A3B8'; }
+  if(el2){ el2.textContent=s==='ok'?'✅':s==='error'?'❌':s==='saving'||s==='loading'?'🔄':''; }
+}
+
+async function syncLoad(){
+  var token=getGHToken();
+  if(!token){ setSyncStatus('none'); return; }
+  setSyncStatus('loading');
+  try{
+    var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/'+DATA_FILE+'?t='+Date.now(),{
+      headers:{'Authorization':'token '+token,'User-Agent':'biz-app'}
+    });
+    if(res.status===404){ setSyncStatus('ok'); return; }
+    if(!res.ok) throw new Error(res.status);
+    var j=await res.json();
+    localStorage.setItem('gh_sha', j.sha);
+    var d=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\s/g,'')))));
+    if(d.invoices) saveInv(d.invoices);
+    if(d.receipts) saveRec(d.receipts);
+    if(d.sales) saveSales(d.sales);
+    setSyncStatus('ok');
+    renderDashboard();
+  }catch(e){ console.error(e); setSyncStatus('error'); }
+}
+
+function triggerSave(){
+  clearTimeout(syncTimer);
+  setSyncStatus('saving');
+  syncTimer=setTimeout(syncSave, 1500);
+}
+
+async function syncSave(){
+  var token=getGHToken();
+  if(!token) return;
+  var d={invoices:loadInv(),receipts:loadRec(),sales:loadSales(),updated:new Date().toISOString()};
+  var content=btoa(unescape(encodeURIComponent(JSON.stringify(d))));
+  var sha=localStorage.getItem('gh_sha');
+  var body={message:'sync',content:content};
+  if(sha) body.sha=sha;
+  try{
+    var res=await fetch('https://api.github.com/repos/'+REPO+'/contents/'+DATA_FILE,{
+      method:'PUT',
+      headers:{'Authorization':'token '+token,'Content-Type':'application/json','User-Agent':'biz-app'},
+      body:JSON.stringify(body)
+    });
+    if(res.status===409){ await syncLoad(); triggerSave(); return; }
+    if(!res.ok) throw new Error(res.status);
+    var j=await res.json();
+    if(j.content&&j.content.sha) localStorage.setItem('gh_sha',j.content.sha);
+    setSyncStatus('ok');
+  }catch(e){ console.error(e); setSyncStatus('error'); }
+}
+
 // ===== SETTINGS =====
 function loadApiKey(){ return localStorage.getItem('claude_api_key')||''; }
-function openSettings(){ document.getElementById('api-key-input').value=loadApiKey(); document.getElementById('settings-modal').classList.add('active'); }
+function openSettings(){
+  document.getElementById('api-key-input').value=loadApiKey();
+  document.getElementById('gh-token-input').value=getGHToken();
+  document.getElementById('settings-modal').classList.add('active');
+}
 function closeSettings(){ document.getElementById('settings-modal').classList.remove('active'); }
-function saveSettings(){ localStorage.setItem('claude_api_key',document.getElementById('api-key-input').value.trim()); closeSettings(); alert('保存しました。'); }
+function saveSettings(){
+  localStorage.setItem('claude_api_key',document.getElementById('api-key-input').value.trim());
+  var ghToken=document.getElementById('gh-token-input').value.trim();
+  localStorage.setItem('github_token',ghToken);
+  closeSettings();
+  if(ghToken) syncLoad();
+  alert('保存しました。');
+}
 
 // ===== 経費ルール（税理士レベル） =====
 var EXP_RULES = {
@@ -1155,7 +1245,7 @@ function handleOCR(file){
 }
 
 // ===== INIT =====
-renderDashboard();
+syncLoad().then(function(){ renderDashboard(); });
 </script>
 </body>
 </html>
