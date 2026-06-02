@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -504,15 +504,15 @@
       <!-- チェックリスト -->
       <div class="card" style="margin-bottom:18px">
         <div class="card-title">✅ 確定申告チェックリスト</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk1" onchange="saveTaxChk()"> 売上の集計完了</label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk2" onchange="saveTaxChk()"> 領収書の整理・カテゴリ分類完了</label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk3" onchange="saveTaxChk()"> 家事按分の計算完了（家賃・光熱費）</label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk4" onchange="saveTaxChk()"> 青色申告決算書の記載完了</label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk5" onchange="saveTaxChk()"> 社会保険料控除の確認（国民年金・国保）</label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk6" onchange="saveTaxChk()"> 生命保険料控除の確認</label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk7" onchange="saveTaxChk()"> ふるさと納税の寄付金控除</label>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk8" onchange="saveTaxChk()"> e-Tax/税務署への提出完了</label>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;padding:8px 10px;border-radius:7px;background:#F8FAFC"><input type="checkbox" id="chk1" onchange="saveTaxChk()"> 売上の集計完了</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;padding:8px 10px;border-radius:7px;background:#F8FAFC"><input type="checkbox" id="chk2" onchange="saveTaxChk()"> 領収書の整理・カテゴリ分類完了</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;padding:8px 10px;border-radius:7px;background:#F8FAFC"><input type="checkbox" id="chk3" onchange="saveTaxChk()"> 家事按分の計算完了（家賃・光熱費）</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;padding:8px 10px;border-radius:7px;background:#F8FAFC"><input type="checkbox" id="chk4" onchange="saveTaxChk()"> 青色申告決算書の記載完了</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;padding:8px 10px;border-radius:7px;background:#F8FAFC"><input type="checkbox" id="chk5" onchange="saveTaxChk()"> 社会保険料控除の確認（国民年金・国保）</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;padding:8px 10px;border-radius:7px;background:#F8FAFC"><input type="checkbox" id="chk6" onchange="saveTaxChk()"> 生命保険料控除の確認</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;padding:8px 10px;border-radius:7px;background:#F8FAFC"><input type="checkbox" id="chk7" onchange="saveTaxChk()"> ふるさと納税の寄付金控除</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:normal;padding:8px 10px;border-radius:7px;background:#F8FAFC"><input type="checkbox" id="chk8" onchange="saveTaxChk()"> e-Tax/税務署への提出完了</label>
         </div>
         <div id="chk-progress" style="margin-top:14px;padding:10px 14px;background:#F8FAFC;border-radius:8px;font-size:13px"></div>
       </div>
@@ -1272,161 +1272,4 @@ var EXP_RULES = {
   '新聞図書費': {
     warnAmt: 100000,
     minLen: 5,
-    keywords: ['書籍','本','雑誌','新聞','セミナー','教材','テキスト'],
-    tip: '業務に直接関連する書籍・雑誌のみ対象です。\n例：「営業技術関連書籍「〇〇」」\nプライベートの趣味・娯楽は対象外です。',
-    limitNote: '年間10万円超は業務関連性の説明が必要になります。'
-  },
-  '広告宣伝費': {
-    warnAmt: null,
-    minLen: 8,
-    keywords: ['広告','宣伝','SNS','Instagram','Twitter','X','チラシ','名刺','LP','サイト'],
-    tip: '業務に直接関連する広告のみ対象です。\n例：「Instagram広告費（〇〇サービスPR）」\n効果測定記録を保管しておくと安心です。',
-    limitNote: ''
-  },
-  '研修費・セミナー費': {
-    warnAmt: null,
-    minLen: 8,
-    keywords: ['セミナー','研修','講座','勉強会','スクール','コース','資格','講習'],
-    tip: '現在従事している業務に関連するもののみ対象です。\n例：「営業スキルアップセミナー参加費」\n⚠️ 将来の転職・職種変更に向けた研修は認められません。',
-    limitNote: ''
-  },
-  '水道光熱費': {
-    warnAmt: null,
-    minLen: 5,
-    keywords: ['電気','ガス','水道','光熱','%','按分'],
-    tip: '自宅兼事務所の場合、家事按分が必要です（通常20-30%）。\n例：「電気代（事業用25%按分）」\n按分根拠の記録を保管してください。',
-    limitNote: ''
-  },
-  'その他経費': {
-    warnAmt: 200000,
-    minLen: 10,
-    keywords: [],
-    tip: '「その他」は税務署が詳細を確認しやすい項目です。\n具体的な内容を記載し、可能であれば別カテゴリへの分類をお勧めします。\n例：「名刺作成費」→ 広告宣伝費、「PC周辺機器」→ 消耗品費',
-    limitNote: '年間20万円超は税務調査で詳細確認される可能性が高まります。'
-  }
-};
-
-function onCatChange(){
-  var cat=document.getElementById('r-cat').value;
-  var tipsEl=document.getElementById('cat-tips');
-  if(cat && EXP_RULES[cat]){
-    tipsEl.textContent=EXP_RULES[cat].tip;
-    tipsEl.style.display='block';
-  } else {
-    tipsEl.style.display='none';
-  }
-  validateLive();
-}
-
-function validateLive(){
-  var cat=document.getElementById('r-cat').value;
-  var desc=document.getElementById('r-desc').value.trim();
-  var amt=parseFloat(document.getElementById('r-amount').value)||0;
-  var fb=document.getElementById('quality-feedback');
-  var la=document.getElementById('limit-alert');
-  if(!cat){fb.innerHTML='';la.innerHTML='';return;}
-  var rule=EXP_RULES[cat];
-  if(!rule){fb.innerHTML='';la.innerHTML='';return;}
-
-  // 説明クオリティチェック
-  var score=0, issues=[], goods=[];
-  if(desc.length===0){ issues.push('内容を入力してください'); }
-  else if(desc.length < rule.minLen){ issues.push('説明が短すぎます（'+rule.minLen+'文字以上推奨）'); }
-  else { score+=1; goods.push('文字数OK'); }
-  if(desc.length>0 && rule.keywords.length>0){
-    var hasKw=rule.keywords.some(function(k){return desc.includes(k);});
-    if(hasKw){score+=1;goods.push('キーワードOK');}
-    else{issues.push('具体的な相手名・場所・目的などを追加してください');}
-  } else if(rule.keywords.length===0 && desc.length>=rule.minLen){score+=1;}
-  if(cat==='接待交際費'){
-    var hasName=desc.match(/[^\s]{2,}様|[^\s]{2,}さん|[^\s]{2,}氏/);
-    if(hasName){score+=1;goods.push('相手の名前あり');}
-    else{issues.push('⚠️ 接待相手の氏名の記載が必要です');}
-  }
-  var maxScore=(cat==='接待交際費')?3:2;
-  var level=score>=maxScore?'good':score>0?'warn':'bad';
-  var emoji=level==='good'?'🟢':level==='warn'?'🟡':'🔴';
-  var label=level==='good'?'記載OK（税務上問題なし）':level==='warn'?'要改善（詳細を追記推奨）':'記載不備（経費否認リスクあり）';
-  var html='<div class="quality-box quality-'+level+'"><div class="quality-title">'+emoji+' '+label+'</div>';
-  if(issues.length) html+='<div>'+issues.map(function(i){return '・'+i;}).join('<br>')+'</div>';
-  if(goods.length && level!=='bad') html+='<div style="margin-top:4px;opacity:0.7">'+goods.map(function(g){return '✓ '+g;}).join(' ');+'</div>';
-  html+='</div>';
-  fb.innerHTML=html;
-
-  // 年間限度アラート
-  la.innerHTML='';
-  if(rule.warnAmt){
-    var year=new Date().getFullYear().toString();
-    var yearTotal=loadRec().filter(function(r){return r.category===cat&&r.date&&r.date.startsWith(year);}).reduce(function(s,r){return s+r.amount;},0);
-    var projected=yearTotal+amt;
-    if(projected>=rule.warnAmt*0.8){
-      la.innerHTML='<div class="limit-alert">⚠️ <strong>年間限度額アラート</strong><br>'+cat+'の今年の合計：¥'+fmt(yearTotal)+'（今回追加後：¥'+fmt(projected)+'）<br>目安の¥'+fmt(rule.warnAmt)+'に'+Math.round(projected/rule.warnAmt*100)+'%に達しています。<br>'+rule.limitNote+'</div>';
-    }
-  }
-}
-
-// ===== OCR =====
-function handleDrop(e){
-  e.preventDefault();
-  document.getElementById('ocr-area').classList.remove('dragover');
-  var file=e.dataTransfer.files[0];
-  if(file&&file.type.startsWith('image/')) handleOCR(file);
-}
-
-function handleOCR(file){
-  if(!file) return;
-  var apiKey=loadApiKey();
-  if(!apiKey){ alert('Gemini APIキーが設定されていません。\n左下の「APIキー設定」から設定してください。'); return; }
-  var reader=new FileReader();
-  var preview=document.getElementById('ocr-preview');
-  var loading=document.getElementById('ocr-loading');
-  var resultMsg=document.getElementById('ocr-result-msg');
-  reader.onload=function(e){
-    preview.src=e.target.result;
-    preview.style.display='block';
-    loading.style.display='block';
-    resultMsg.style.display='none';
-    var base64=e.target.result.split(',')[1];
-    var mediaType=file.type||'image/jpeg';
-    var prompt='このレシート・領収書から以下の情報をJSON形式で抽出してください。\n{"date":"YYYY-MM-DD","amount":数値のみ,"description":"店名や内容（20文字以内）","category":"以下から最適なもの1つ"}\nカテゴリの選択肢：旅費交通費/通信費/広告宣伝費/接待交際費/消耗品費/外注工賃/地代家賃/新聞図書費/研修費・セミナー費/水道光熱費/その他経費\nJSONのみ返してください。日付が不明な場合は今日の日付、金額が不明な場合は0を使用。';
-    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+apiKey,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        contents:[{parts:[
-          {inline_data:{mime_type:mediaType,data:base64}},
-          {text:prompt}
-        ]}]
-      })
-    }).then(function(r){return r.json();})
-    .then(function(data){
-      loading.style.display='none';
-      var text=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text;
-      if(!text){resultMsg.textContent='❌ 読み取りに失敗しました';resultMsg.style.display='block';return;}
-      var match=text.match(/\{[\s\S]*\}/);
-      if(!match){resultMsg.textContent='❌ データを抽出できませんでした';resultMsg.style.display='block';return;}
-      var parsed=JSON.parse(match[0]);
-      if(parsed.date) document.getElementById('r-date').value=parsed.date;
-      if(parsed.amount) document.getElementById('r-amount').value=parsed.amount;
-      if(parsed.description) document.getElementById('r-desc').value=parsed.description;
-      if(parsed.category){
-        document.getElementById('r-cat').value=parsed.category;
-        onCatChange();
-      }
-      validateLive();
-      resultMsg.textContent='✅ 読み取り完了！内容を確認してください。';
-      resultMsg.style.display='block';
-    }).catch(function(err){
-      loading.style.display='none';
-      resultMsg.textContent='❌ エラー：'+err.message;
-      resultMsg.style.display='block';
-    });
-  };
-  reader.readAsDataURL(file);
-}
-
-// ===== INIT =====
-syncLoad().then(function(){ renderDashboard(); });
-</script>
-</body>
-</html>
+    keywords: ['書籍','本','雑誌','新聞','セミナー','教
