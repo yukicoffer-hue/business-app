@@ -293,9 +293,9 @@
         <div style="font-size:11px;color:#94A3B8;margin-top:4px">入力するとスマホ・PCで自動同期されます。</div>
       </div>
       <div class="form-group">
-        <label>Claude APIキー（領収書OCR用）</label>
-        <input type="password" id="api-key-input" placeholder="sk-ant-...">
-        <div style="font-size:11px;color:#94A3B8;margin-top:4px">Anthropic Consoleから取得。ブラウザ内のみに保存されます。</div>
+        <label>Gemini APIキー（領収書OCR用）</label>
+        <input type="password" id="api-key-input" placeholder="AIza...">
+        <div style="font-size:11px;color:#94A3B8;margin-top:4px">Google AI Studioから取得。ブラウザ内のみに保存されます。</div>
       </div>
       <button class="btn btn-secondary" onclick="syncLoad()" style="width:100%;margin-bottom:12px">🔄 今すぐ同期する</button>
       <div style="display:flex;gap:10px">
@@ -425,14 +425,21 @@
           <div class="card receipt-input-sticky">
             <div class="card-title">領収書を追加</div>
             <!-- OCR -->
-            <div class="ocr-area" id="ocr-area" onclick="document.getElementById('ocr-file').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)">
+            <div class="ocr-area" id="ocr-area" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)" onclick="document.getElementById('ocr-file').click()">
               <div style="font-size:24px">📷</div>
               <div style="font-size:13px;font-weight:600;margin-top:4px">写真から自動読み取り</div>
-              <div style="font-size:11px;color:#94A3B8;margin-top:2px">クリックまたはドラッグ＆ドロップ</div>
+              <div style="font-size:11px;color:#94A3B8;margin-top:2px">クリックまたはドラッグ＆ドロップ（PC）</div>
               <img id="ocr-preview" class="ocr-preview">
               <div id="ocr-loading" class="ocr-loading">🔍 読み取り中...</div>
             </div>
+            <!-- ファイル選択（PCとスマホ共通） -->
             <input type="file" id="ocr-file" accept="image/*" style="display:none" onchange="handleOCR(this.files[0])">
+            <!-- カメラ直接起動（スマホ用） -->
+            <input type="file" id="ocr-camera" accept="image/*" capture="environment" style="display:none" onchange="handleOCR(this.files[0])">
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('ocr-camera').click()" style="flex:1;font-size:12px">📸 カメラで撮影</button>
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('ocr-file').click()" style="flex:1;font-size:12px">🖼️ 画像を選択</button>
+            </div>
             <div id="ocr-result-msg" style="font-size:12px;color:#10B981;margin-bottom:10px;display:none"></div>
             <hr style="border:none;border-top:1px solid #E2E8F0;margin-bottom:12px">
             <div class="form-group"><label>日付</label><input type="date" id="r-date"></div>
@@ -493,6 +500,68 @@
         <label style="font-size:14px;font-weight:600">対象年度：</label>
         <select id="tax-year" onchange="renderTax()"></select>
         <span style="font-size:12px;color:#94A3B8">確定申告期間：翌年2月16日〜3月15日</span>
+      </div>
+      <!-- チェックリスト -->
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-title">✅ 確定申告チェックリスト</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk1" onchange="saveTaxChk()"> 売上の集計完了</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk2" onchange="saveTaxChk()"> 領収書の整理・カテゴリ分類完了</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk3" onchange="saveTaxChk()"> 家事按分の計算完了（家賃・光熱費）</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk4" onchange="saveTaxChk()"> 青色申告決算書の記載完了</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk5" onchange="saveTaxChk()"> 社会保険料控除の確認（国民年金・国保）</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk6" onchange="saveTaxChk()"> 生命保険料控除の確認</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk7" onchange="saveTaxChk()"> ふるさと納税の寄付金控除</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal"><input type="checkbox" id="chk8" onchange="saveTaxChk()"> e-Tax/税務署への提出完了</label>
+        </div>
+        <div id="chk-progress" style="margin-top:14px;padding:10px 14px;background:#F8FAFC;border-radius:8px;font-size:13px"></div>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-title">💡 節税チェック（個人事業主向け）</div>
+        <div id="tax-saving-tips"></div>
+      </div>
+      <!-- 控除シミュレーター -->
+      <div class="card" style="margin-bottom:18px" id="deduction-card">
+        <div class="card-title">🧮 控除シミュレーター（課税所得の概算）</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div class="form-group" style="margin-bottom:0">
+            <label>青色申告特別控除</label>
+            <select id="ded-blue" onchange="calcDeductions()">
+              <option value="650000">65万円（e-Tax・複式簿記）</option>
+              <option value="100000">10万円（簡易帳簿）</option>
+              <option value="0">なし（白色申告）</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>基礎控除</label>
+            <select id="ded-basic" onchange="calcDeductions()">
+              <option value="480000">48万円（所得2400万円以下）</option>
+              <option value="320000">32万円（所得2400万〜2450万円）</option>
+              <option value="160000">16万円（所得2450万〜2500万円）</option>
+              <option value="0">0円（所得2500万円超）</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>社会保険料控除（年間・手入力）</label>
+            <input type="number" id="ded-social" placeholder="例：200000" min="0" oninput="calcDeductions()" style="width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>小規模企業共済掛金控除（年間・手入力）</label>
+            <input type="number" id="ded-kyosai" placeholder="例：840000" min="0" oninput="calcDeductions()" style="width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>勤労学生控除 <span style="font-size:10px;color:#94A3B8">（合計所得75万円以下・在学中）</span></label>
+            <select id="ded-student" onchange="calcDeductions()">
+              <option value="0">なし</option>
+              <option value="270000">あり（27万円）</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>その他控除（生命保険料控除など・手入力）</label>
+            <input type="number" id="ded-other" placeholder="例：40000" min="0" oninput="calcDeductions()" style="width:100%">
+          </div>
+        </div>
+        <div id="deduction-result"></div>
       </div>
       <div id="tax-body"></div>
       <p class="tax-note">※ この書類は参考資料です。実際の確定申告は国税庁の確定申告書等作成コーナーをご利用ください。</p>
@@ -823,13 +892,60 @@ function deleteReceipt(id){
 }
 
 // ===== TAX RETURN =====
+function saveTaxChk(){
+  var state={};
+  for(var i=1;i<=8;i++) state['chk'+i]=document.getElementById('chk'+i).checked;
+  localStorage.setItem('tax_checklist',JSON.stringify(state));
+  updateChkProgress();
+}
+function loadTaxChk(){
+  try{ return JSON.parse(localStorage.getItem('tax_checklist')||'{}'); }catch(e){ return {}; }
+}
+function updateChkProgress(){
+  var done=0;
+  for(var i=1;i<=8;i++) if(document.getElementById('chk'+i)&&document.getElementById('chk'+i).checked) done++;
+  var pct=Math.round(done/8*100);
+  var color=pct===100?'#10B981':pct>=50?'#F59E0B':'#94A3B8';
+  var el=document.getElementById('chk-progress');
+  if(el) el.innerHTML='<div style="display:flex;align-items:center;gap:10px">'+
+    '<div style="flex:1;height:8px;background:#E2E8F0;border-radius:4px"><div style="width:'+pct+'%;height:8px;background:'+color+';border-radius:4px;transition:width 0.3s"></div></div>'+
+    '<span style="font-weight:700;color:'+color+'">'+done+'/8完了 ('+pct+'%)</span></div>'+
+    (pct===100?'<div style="color:#10B981;font-weight:700;margin-top:8px">\uD83C\uDF89 準備完了！</div>':'');
+}
+function renderTaxTips(){
+  var year=new Date().getFullYear().toString();
+  var recs=loadRec().filter(function(r){return r.date&&r.date.startsWith(year);});
+  var income=loadInv().filter(function(i){return i.status==='入金済み'&&i.issueDate&&i.issueDate.startsWith(year);}).reduce(function(s,i){return s+i.total;},0)
+    +loadSales().filter(function(s){return s.date&&s.date.startsWith(year);}).reduce(function(s,r){return s+r.amount;},0);
+  var totalExp=recs.reduce(function(s,r){return s+r.amount;},0);
+  var tips=[];
+  if(income>2000000) tips.push({ok:false,text:'所得が200万円超。小規模企業共済（月最大7万円控除）の加入を検討してください。'});
+  var hasRent=recs.some(function(r){return r.category==='地代家賃';});
+  var hasUtil=recs.some(function(r){return r.category==='水道光熱費';});
+  if(!hasRent&&!hasUtil) tips.push({ok:false,text:'家賃・光熱費の計上がありません。自宅兼事務所の場合は家事按分で経費計上できます（通常20〜30%）。'});
+  if(totalExp<income*0.1&&income>500000) tips.push({ok:false,text:'経費率が低めです。書籍・セミナー代・スマホ代・交通費など見落としがないか確認を。'});
+  tips.push({ok:true,text:'資格取得・セミナー・書籍費は「研修費・セミナー費」「新聞図書費」として計上できます。'});
+  tips.push({ok:true,text:'青色申告特別控除（最大65万円）を受けるには複式簿記とe-Taxが必要です。'});
+  tips.push({ok:true,text:'国民年金・国保の保険料は全額「社会保険料控除」として所得から差し引けます。'});
+  var html=tips.map(function(t){
+    return '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #F1F5F9;font-size:12px">'+
+      '<span style="font-size:16px;flex-shrink:0">'+(t.ok?'\u2705':'\u26A0\uFE0F')+'</span>'+
+      '<span style="color:'+(t.ok?'#065F46':'#92400E')+'">'+(t.ok?'<strong>活用できる控除：</strong>':'<strong>要確認：</strong>')+t.text+'</span></div>';
+  }).join('');
+  var el=document.getElementById('tax-saving-tips');
+  if(el) el.innerHTML=html||'<p style="color:#94A3B8;font-size:13px">データを入力すると節税アドバイスが表示されます。</p>';
+}
 function initTax(){
   var invs=loadInv(),recs=loadRec();
   var all=invs.map(function(i){return i.issueDate;}).concat(recs.map(function(r){return r.date;})).filter(Boolean);
   var years=[...new Set(all.map(function(d){return d.slice(0,4);}))].sort().reverse();
   if(!years.length) years=[new Date().getFullYear().toString()];
   var sel=document.getElementById('tax-year'),cur=sel.value||new Date().getFullYear().toString();
-  sel.innerHTML=years.map(function(y){return '<option value="'+y+'"'+(y===cur?' selected':'')+'>'+y+'年</option>';}).join('');
+  sel.innerHTML=years.map(function(y){return '<option value="'+y+'"'+(y===cur?' selected':'')+'>'+y+'\u5e74</option>';}).join('');
+  var chkState=loadTaxChk();
+  for(var i=1;i<=8;i++){var el=document.getElementById('chk'+i);if(el)el.checked=!!(chkState['chk'+i]);}
+  updateChkProgress();
+  renderTaxTips();
   renderTax();
 }
 function renderTax(){
@@ -871,6 +987,72 @@ function renderTax(){
     '<table class="tax-table"><thead><tr><th>経費区分</th><th style="text-align:right">金額</th></tr></thead><tbody>'+expRows+'</tbody></table></div>'+
     '<div class="tax-net"><div><div class="tax-net-label">事業所得（概算）</div><div class="tax-net-sub">売上 − 経費 ＝ 事業所得</div><div class="tax-net-sub" style="margin-top:4px">¥'+fmt(income)+' − ¥'+fmt(totalExp)+'</div></div>'+
     '<div class="tax-net-amount '+netColor+'">¥'+fmt(net)+'</div></div>';
+  calcDeductions();
+}
+
+// ===== 控除シミュレーター =====
+function calcDeductions(){
+  var year=document.getElementById('tax-year')?document.getElementById('tax-year').value:new Date().getFullYear().toString();
+  var invs=loadInv().filter(function(i){return i.status==='入金済み'&&i.issueDate&&i.issueDate.startsWith(year);});
+  var sals=loadSales().filter(function(s){return s.date&&s.date.startsWith(year);});
+  var recs=loadRec().filter(function(r){return r.date&&r.date.startsWith(year);});
+  var income=invs.reduce(function(s,i){return s+i.total;},0)+sals.reduce(function(s,r){return s+r.amount;},0);
+  var totalExp=recs.reduce(function(s,r){return s+r.amount;},0);
+  var net=income-totalExp;
+
+  var blue=parseInt(document.getElementById('ded-blue')?document.getElementById('ded-blue').value:0)||0;
+  var basic=parseInt(document.getElementById('ded-basic')?document.getElementById('ded-basic').value:0)||0;
+  var social=parseInt(document.getElementById('ded-social')?document.getElementById('ded-social').value:0)||0;
+  var kyosai=parseInt(document.getElementById('ded-kyosai')?document.getElementById('ded-kyosai').value:0)||0;
+  var student=parseInt(document.getElementById('ded-student')?document.getElementById('ded-student').value:0)||0;
+  var other=parseInt(document.getElementById('ded-other')?document.getElementById('ded-other').value:0)||0;
+
+  var totalDed=blue+basic+social+kyosai+student+other;
+  var taxable=Math.max(0,net-totalDed);
+
+  var el=document.getElementById('deduction-result');
+  if(!el) return;
+
+  var rows=[
+    {label:'事業所得（売上−経費）',amt:net,color:''},
+    {label:'青色申告特別控除',amt:-blue,color:'blue'},
+    {label:'基礎控除',amt:-basic,color:'blue'},
+    {label:'社会保険料控除',amt:-social,color:'blue'},
+    {label:'小規模企業共済掛金控除',amt:-kyosai,color:'blue'},
+    {label:'勤労学生控除',amt:-student,color:'blue'},
+    {label:'その他控除',amt:-other,color:'blue'},
+  ].filter(function(r){return r.amt!==0;});
+
+  var html='<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px">';
+  rows.forEach(function(r){
+    html+='<tr style="border-bottom:1px solid #F1F5F9"><td style="padding:7px 4px;color:'+(r.color?'#1D4ED8':'#1E293B')+'">'+r.label+'</td>'+
+      '<td style="text-align:right;padding:7px 4px;font-weight:600;color:'+(r.amt<0?'#10B981':'#1E293B')+'">'+
+      (r.amt<0?'−':'')+'¥'+fmt(Math.abs(r.amt))+'</td></tr>';
+  });
+  html+='<tr style="border-top:3px solid #1E293B"><td style="padding:10px 4px;font-weight:700;font-size:14px">課税所得（概算）</td>'+
+    '<td style="text-align:right;padding:10px 4px;font-weight:900;font-size:20px;color:'+(taxable>0?'#EF4444':'#10B981')+'">¥'+fmt(taxable)+'</td></tr>';
+  html+='</table>';
+
+  if(taxable<=0){
+    html+='<div style="background:#D1FAE5;border-left:4px solid #10B981;padding:10px 14px;border-radius:6px;font-size:12px;color:#065F46">✅ 控除後の課税所得が0円です。所得税はかかりません。</div>';
+  } else {
+    // 簡易税額計算
+    var tax=0;
+    var brackets=[[1950000,0.05,0],[3300000,0.10,97500],[6950000,0.20,427500],[9000000,0.23,636000],[18000000,0.33,1536000],[40000000,0.40,2796000],[Infinity,0.45,4796000]];
+    for(var i=0;i<brackets.length;i++){
+      if(taxable<=brackets[i][0]){tax=Math.floor(taxable*brackets[i][1]-brackets[i][2]);break;}
+    }
+    var tax_with_levy=Math.floor(tax*1.021);
+    html+='<div style="background:#FEF3C7;border-left:4px solid #F59E0B;padding:10px 14px;border-radius:6px;font-size:12px;color:#92400E">'+
+      '⚠️ 概算所得税額：<strong>¥'+fmt(tax_with_levy)+'</strong>（復興特別所得税2.1%込み）<br>'+
+      '<span style="font-size:11px;opacity:0.8">※ 他の控除・住民税は含みません。目安としてご利用ください。</span></div>';
+  }
+
+  if(student>0&&net>750000){
+    html+='<div style="background:#FEE2E2;border-left:4px solid #EF4444;padding:8px 14px;border-radius:6px;font-size:12px;color:#991B1B;margin-top:8px">⚠️ 勤労学生控除は合計所得75万円以下が条件です。現在の事業所得が75万円を超えています。</div>';
+  }
+
+  el.innerHTML=html;
 }
 
 // ===== PDF =====
@@ -1027,7 +1209,7 @@ async function syncSave(){
 }
 
 // ===== SETTINGS =====
-function loadApiKey(){ return localStorage.getItem('claude_api_key')||''; }
+function loadApiKey(){ return localStorage.getItem('gemini_api_key')||''; }
 function openSettings(){
   document.getElementById('api-key-input').value=loadApiKey();
   document.getElementById('gh-token-input').value=getGHToken();
@@ -1035,7 +1217,7 @@ function openSettings(){
 }
 function closeSettings(){ document.getElementById('settings-modal').classList.remove('active'); }
 function saveSettings(){
-  localStorage.setItem('claude_api_key',document.getElementById('api-key-input').value.trim());
+  localStorage.setItem('gemini_api_key',document.getElementById('api-key-input').value.trim());
   var ghToken=document.getElementById('gh-token-input').value.trim();
   localStorage.setItem('github_token',ghToken);
   closeSettings();
@@ -1194,7 +1376,7 @@ function handleDrop(e){
 function handleOCR(file){
   if(!file) return;
   var apiKey=loadApiKey();
-  if(!apiKey){ alert('APIキーが設定されていません。\n左下の「APIキー設定」から設定してください。'); return; }
+  if(!apiKey){ alert('Gemini APIキーが設定されていません。\n左下の「APIキー設定」から設定してください。'); return; }
   var reader=new FileReader();
   var preview=document.getElementById('ocr-preview');
   var loading=document.getElementById('ocr-loading');
@@ -1206,21 +1388,20 @@ function handleOCR(file){
     resultMsg.style.display='none';
     var base64=e.target.result.split(',')[1];
     var mediaType=file.type||'image/jpeg';
-    fetch('https://api.anthropic.com/v1/messages',{
+    var prompt='このレシート・領収書から以下の情報をJSON形式で抽出してください。\n{"date":"YYYY-MM-DD","amount":数値のみ,"description":"店名や内容（20文字以内）","category":"以下から最適なもの1つ"}\nカテゴリの選択肢：旅費交通費/通信費/広告宣伝費/接待交際費/消耗品費/外注工賃/地代家賃/新聞図書費/研修費・セミナー費/水道光熱費/その他経費\nJSONのみ返してください。日付が不明な場合は今日の日付、金額が不明な場合は0を使用。';
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+apiKey,{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-opus-4-5',
-        max_tokens:512,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:mediaType,data:base64}},
-          {type:'text',text:'このレシート・領収書から以下の情報をJSON形式で抽出してください。\n{"date":"YYYY-MM-DD","amount":数値のみ,"description":"店名や内容（20文字以内）","category":"以下から最適なもの1つ"}\nカテゴリの選択肢：旅費交通費/通信費/広告宣伝費/接待交際費/消耗品費/外注工賃/地代家賃/新聞図書費/研修費・セミナー費/水道光熱費/その他経費\nJSONのみ返してください。日付が不明な場合は今日の日付、金額が不明な場合は0を使用。'}
+        contents:[{parts:[
+          {inline_data:{mime_type:mediaType,data:base64}},
+          {text:prompt}
         ]}]
       })
     }).then(function(r){return r.json();})
     .then(function(data){
       loading.style.display='none';
-      var text=data.content&&data.content[0]&&data.content[0].text;
+      var text=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text;
       if(!text){resultMsg.textContent='❌ 読み取りに失敗しました';resultMsg.style.display='block';return;}
       var match=text.match(/\{[\s\S]*\}/);
       if(!match){resultMsg.textContent='❌ データを抽出できませんでした';resultMsg.style.display='block';return;}
